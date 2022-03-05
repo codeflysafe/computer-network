@@ -34,7 +34,7 @@ int main(){
     // int client_num = 0;
     struct sockaddr_in cli_addr;
     socklen_t addrlen = sizeof(cli_addr);
-    for(int c = 1; c <= 3; c++){
+    for(;;){
         errno = 0;
         // 从 established 队列中获取连接，
         // 如果队列为空，则阻塞此处
@@ -51,8 +51,9 @@ int main(){
         }
         // 关闭连接
         close(connfd);
-        printf(" [Server]  connect close: %d\n", c);
+        printf(" [Server]  connect close: %d\n", connfd);
     }
+    close(listenfd);
     printf("[Server]  connect close: %d\n", getpid());
     return 0;
 }

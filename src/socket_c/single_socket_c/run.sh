@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ## 编译
-gcc client.cpp -o client
-gcc server.cpp -o server
+gcc -o client client.c
+gcc -o server server.c
 
 ## 启动服务器
 ./server &

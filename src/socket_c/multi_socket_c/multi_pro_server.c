@@ -44,6 +44,7 @@ int main(){
         int connfd = accept(listenfd,(struct sockaddr*)&cli_addr, &addrlen);
         // 如果是子进程
         if((pid = fork()) == 0){
+            // 关键监听fd
             close(listenfd);
            // 建立连接成功
             printf("[Server] connection from %s port: %d\n", inet_ntop(AF_INET, &cli_addr.sin_addr,

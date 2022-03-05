@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ## 编译
-gcc client.cpp -o client
-gcc multi_pro_server.cpp -o multi_pro_server
+gcc client.c -o client
+gcc multi_pro_server.c -o multi_pro_server
 
 ## 启动服务器
 ./multi_pro_server &
