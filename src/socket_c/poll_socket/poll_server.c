@@ -1,18 +1,18 @@
 /*
  * @Author: sjhuang
- * @Date: 2022-03-06 00:30:07
- * @LastEditTime: 2022-03-06 11:20:37
- * @FilePath: /computer_network/src/socket_c/select_socket.c/select_server.c
+ * @Date: 2022-03-06 11:23:19
+ * @LastEditTime: 2022-03-06 11:56:52
+ * @FilePath: /computer_network/src/socket_c/poll_socket/poll_server.c
  */
 
-#include "select_socket.h"
+#include "poll_socket.h"
 int main(){
     // 监听 fd 和 连接 fd
     int listenfd, coonfd, sockfd;
-    // 描述符集合
-    fd_set rset, allset;
-    int client[FD_SETSIZE], buff[MAXLINE];
-    int maxfd1 , n, maxi = -1;
+    int  buff[MAXLINE];
+    // pollfd 列表
+    struct pollfd client[OPEN_MAX];
+    int maxfd1 , n, maxi = 0;
     // 进程id
     pid_t pid;
     // 
@@ -32,39 +32,32 @@ int main(){
     // 监听并设置队列长度
     listen(listenfd,BACK_LOG);   
     maxfd1 = listenfd;
-    // 最大是1024
-    for(i = 0; i < FD_SETSIZE; i++){
-        client[i] = -1;
+    // 默认将 client[0] 作为 服务器 listenfd
+    clilen[0].fd = listenfd;
+    for(i = 1; i < OPEN_MAX; i++){
+        client[i].fd = -1;
     }
-    FD_ZERO(&allset);
-    FD_SET(listenfd, &allset);
+
     for(;;){
-        rset = allset;
         // 
-        nready = select(maxfd1 + 1, &rset, NULL, NULL, NULL);
+        nready = poll(pollfd, maxi + 1, -1);
         // 新来一个连接
-        if((FD_ISSET(listenfd, &rset))){
+        if((client[0].revents & POLLRDNORM)){
             clilen = sizeof(cliaddr);
             coonfd = accept(listenfd, (struct sockaddr*)&cliaddr, &clilen);
-            for(i = 0; i < FD_SETSIZE; i++){
+            for(i = 0; i < OPEN_MAX; i++){
                 // 存储
-                if(client[i] < 0){
-                    client[i] = coonfd;
+                if(client[i].fd < 0){
+                    client[i].fd = coonfd;
                     break;
                 }
             }
             // 分配完毕
-            if(i == FD_SETSIZE){
+            if(i == OPEN_MAX){
                 printf(" to many clients\n");
                 exit(1);
             }
-            // 增加新的描述符
-            FD_SET(coonfd, &rset);
-            // 如果比最大的maxfd1还要大，
-            // 则更新 maxfd
-            if(maxfd1 < coonfd){
-                maxfd1 = coonfd;
-            }
+            client[i].events = POLLRDNORM;
             if(maxi < i){
                 maxi = i;
             }
@@ -74,16 +67,16 @@ int main(){
         }
         
         // 遍历所有客户端，看是否可读
-        for(i = 0; i < maxi; i++){
-            if((sockfd = client[i]) < 0){
+        for(i = 1; i < maxi; i++){
+            if((client[i].fd) < 0){
                 continue;
             }
-            if(FD_ISSET(sockfd, &rset)){
+            sockfd = client[i].fd;
+            if(client[i].revents & (POLLRDNORM | POLLERR)){
                 if((n = read(sockfd, buff, MAXLINE)) == 0){
                     // connection closed by client
                     close(sockfd);
-                    FD_CLR(sockfd, &rset);
-                    client[i] = -1;
+                    client[i].fd = -1;
                 }else{
                     // 传给客户端
                     write(sockfd, buff, n);

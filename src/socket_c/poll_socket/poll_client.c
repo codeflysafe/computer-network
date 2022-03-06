@@ -1,10 +1,12 @@
 /*
  * @Author: sjhuang
- * @Date: 2022-03-06 00:30:52
- * @LastEditTime: 2022-03-06 11:20:10
- * @FilePath: /computer_network/src/socket_c/select_socket.c/select_client.c
+ * @Date: 2022-03-06 11:33:21
+ * @LastEditTime: 2022-03-06 11:41:24
+ * @FilePath: /computer_network/src/socket_c/poll_socket/poll_client.c
  */
-#include "select_socket.h"
+
+
+#include "poll_socket.h"
 
 // fd 文件 fd
 void str_cli(FILE *fd, int sockfd){
