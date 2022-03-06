@@ -1,7 +1,7 @@
 /*
  * @Author: sjhuang
  * @Date: 2022-03-06 11:33:21
- * @LastEditTime: 2022-03-06 11:41:24
+ * @LastEditTime: 2022-03-06 18:20:37
  * @FilePath: /computer_network/src/socket_c/poll_socket/poll_client.c
  */
 
@@ -11,58 +11,46 @@
 // fd 文件 fd
 void str_cli(FILE *fd, int sockfd){
     int maxfdp1, stdineof;
-    int n;
-    // 读取 fd_set
-    fd_set rset;
+    int i, n,nready;
     char buf[MAXLINE];
+    int fd_num = 2;
+    struct pollfd fds[fd_num];
+    fds[0].fd =  fileno(fd);
+    fds[0].events = POLLIN;
+    fds[0].revents = 0;
+    fds[1].fd =  sockfd;
+    fds[1].events = POLLIN;
+    fds[1].revents = 0;
     stdineof = 0;
-    FD_ZERO(&rset);
+    // 第一个是 socket 程序
     for(; ;){
-        if(stdineof == 0){
-            // 监听 file fd
-            FD_SET(fileno(fd), &rset);
-        }
-        FD_SET(sockfd, &rset);
-        if(sockfd > fileno(fd)){
-            maxfdp1 = sockfd;
-        }else {
-            maxfdp1 = fileno(fd);
-        }
-        // maxfdp1 = max(fileno(fd), sockfd) + 1;
-        // time = NULL 代表采用 阻塞方式，只有准备好了之后才返回
-        select(maxfdp1, &rset, NULL, NULL, NULL);
-        
-        // 如果网络 readble
-        if(FD_ISSET(sockfd, &rset)){
-            // 这里不会在等待数据准备，
-            // 直接从内核缓冲区复制到用户进程
-            if((n = read(sockfd, buf, MAXLINE))){
-                // 是否含有 EOF 符号
-                if(stdineof == 1){
-                    return;
-                }else{
-
-                }
+        // 设置两个
+        nready = poll(fds,fd_num,-1);
+        // 如果可读
+        if((fds[0].revents & (POLLIN | POLLRDNORM))){
+            // 从 fd 中读出
+            if((n = read(sockfd, buf, MAXLINE)) == 0){
+               if(stdineof == 1){
+                   return;
+               }
+            }else{
+                // 写到 标准输出中
+                write(fds[1].fd, buf, n);
             }
-            // 写入文件中
-            write(fileno(fd), buf, n);
+
         }
 
-        // 如果文件准备好了
-        if(FD_ISSET(fileno(fd), &rset)){
-            // 读取完毕
-            if(( n= read(fileno(fd), buf, MAXLINE) == 0)){
+        if(fds[1].revents & POLLIN){
+             if((n = read(fds[1].fd, buf, MAXLINE)) == 0){
                 stdineof = 1;
-                // shut down the reading side
-                // send fin
+                // 关闭
                 shutdown(sockfd, SHUT_RD);
-                // 重置 监听描述符
-                FD_CLR(fileno(fd), &rset);
                 continue;
             }
-            // 向网络中传输
+            // 写到 标准输出中
             write(sockfd, buf, n);
         }
+
     }
 }
 

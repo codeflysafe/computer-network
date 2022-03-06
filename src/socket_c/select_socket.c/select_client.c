@@ -1,7 +1,7 @@
 /*
  * @Author: sjhuang
  * @Date: 2022-03-06 00:30:52
- * @LastEditTime: 2022-03-06 11:20:10
+ * @LastEditTime: 2022-03-06 18:21:17
  * @FilePath: /computer_network/src/socket_c/select_socket.c/select_client.c
  */
 #include "select_socket.h"
@@ -39,11 +39,11 @@ void str_cli(FILE *fd, int sockfd){
                 if(stdineof == 1){
                     return;
                 }else{
-
+               // 写入文件中
+                write(fileno(fd), buf, n);
                 }
             }
-            // 写入文件中
-            write(fileno(fd), buf, n);
+          
         }
 
         // 如果文件准备好了
