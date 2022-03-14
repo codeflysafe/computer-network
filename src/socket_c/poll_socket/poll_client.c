@@ -8,60 +8,15 @@
 
 #include "poll_socket.h"
 
-// fd 文件 fd
-void str_cli(FILE *fd, int sockfd){
-    int maxfdp1, stdineof;
-    int i, n,nready;
-    char buf[MAXLINE];
-    int fd_num = 2;
-    struct pollfd fds[fd_num];
-    fds[0].fd =  fileno(fd);
-    fds[0].events = POLLIN;
-    fds[0].revents = 0;
-    fds[1].fd =  sockfd;
-    fds[1].events = POLLIN;
-    fds[1].revents = 0;
-    stdineof = 0;
-    // 第一个是 socket 程序
-    for(; ;){
-        // 设置两个
-        nready = poll(fds,fd_num,-1);
-        // 如果可读
-        if((fds[0].revents & (POLLIN | POLLRDNORM))){
-            // 从 fd 中读出
-            if((n = read(sockfd, buf, MAXLINE)) == 0){
-               if(stdineof == 1){
-                   return;
-               }
-            }else{
-                // 写到 标准输出中
-                write(fds[1].fd, buf, n);
-            }
 
-        }
+// poll 客户端
+int main(){
 
-        if(fds[1].revents & POLLIN){
-             if((n = read(fds[1].fd, buf, MAXLINE)) == 0){
-                stdineof = 1;
-                // 关闭
-                shutdown(sockfd, SHUT_RD);
-                continue;
-            }
-            // 写到 标准输出中
-            write(sockfd, buf, n);
-        }
-
-    }
-}
-
-// select 客户端
-int main(int argc, char **argv){
-    int sockfd;
+    // 缓冲区
+    char buff[MAXLINE];
+    pid_t  pid = getpid();
+    int  sockfd, nready, maxfd = 1, n;
     struct sockaddr_in servaddr;
-    if(argc != 2){
-        printf("usage: tcpcli <IPaddress>\n");
-        return 0;
-    }
     // 创建套接字
     sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     // 分配空间，设置为0
@@ -71,12 +26,38 @@ int main(int argc, char **argv){
     // 设置服务器 port
     servaddr.sin_port = htons(SERV_PORT);
     // 获取 ip 地址
-    inet_pton(AF_INET, argv[1], &servaddr.sin_addr);
+    servaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     // printf("%d\n", servaddr.sin_addr.s_addr);
     connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr));
-    // stdin 代表是 shell 默认的文件
+    if(errno != 0){
+        printf("[Client] %d connection 失败 error: %d\n", pid, errno);
+        exit(1);
+    }
+    printf("[Client] %d connection success\n", pid);
     // 标准文件
-    str_cli(stdin, sockfd);
+    struct pollfd fds[maxfd];
+    fds[0].events = POLLRDNORM;
+    fds[0].fd = sockfd;
 
+    // 这里会阻塞住
+    nready = poll(fds, maxfd, -1);
+    if(nready <= 0){
+        printf("[Client] %d 失败 \n", pid);
+        exit(1);
+    }
+
+    // 如果可读
+    if(fds[0].revents & (POLLRDNORM | ECONNRESET)){
+        n = read(sockfd, buff, MAXLINE);
+        if(errno != 0){
+            printf("[Client] %d, error %d \n", pid, errno);
+        }else if(n > 0){
+            printf("[Client] %d, msg from server :%s\n", pid, buff);
+        }
+        fds[0].fd = -1;
+    }
+
+    close(sockfd);
+    printf("[Client] %d, close \n", pid);
     return 0;
 }

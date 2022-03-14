@@ -4,11 +4,11 @@
  # @Date: 2022-03-06 15:23:19
  # @LastEditTime: 2022-03-06 15:25:24
  # @FilePath: /computer_network/src/socket_c/select_socket.c/run.sh
-### 
+###
 
 ## 编译服务器和客户端程序
-gcc -o server select_server.c -I select_socket.h
-gcc -o client select_client.c -I select_socket.h
+gcc -o server poll_server.c -I poll_socket.h
+gcc -o client poll_client.c -I poll_socket.h
 
 # 启动服务端
 ./server &
@@ -31,7 +31,7 @@ echo "client 4 start!"
 echo "client 5 start!"
 
 #休眠一分钟
-sleep 1m
+sleep 3m
 pid=$(ps -ef | grep ./server | grep -v grep | awk '{print $2}')
 echo "server pid is ${pid}"
 # 杀掉服务端
