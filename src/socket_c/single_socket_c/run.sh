@@ -15,3 +15,8 @@ echo "客户端1已启动"
 echo "客户端2已启动"
 ./client &
 echo "客户端3已启动"
+
+pid=$(ps -ef | grep ./server | grep -v grep | awk '{print $2}')
+echo "server pid is ${pid}"
+# 杀掉服务端
+kill -9 ${pid}

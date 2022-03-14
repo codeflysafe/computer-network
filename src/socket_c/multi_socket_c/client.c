@@ -8,6 +8,8 @@
 #include <errno.h>
 
 int main(){
+    char buffer[40];
+    pid_t  pid = getpid();
     // 创建套接字
     int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     struct sockaddr_in serv_addr;
@@ -19,14 +21,11 @@ int main(){
     // 建立 tcp 连接
     int res = connect(fd, (struct sockaddr *)(&serv_addr), sizeof(serv_addr));
     if(res != 0){
-        printf(" connect error: %d\n", errno);
+        printf(" [Client] %d connect error: %d\n", pid, errno);
     }
     // 读取从服务器传回的数据
-    char buffer[40];
     read(fd,buffer, sizeof(buffer)-1);
-    
-    printf("Message from server: %s\n", buffer);
-
+    printf("[Client] %d Message from server: %s\n", pid, buffer);
     // 关闭套接字
     close(fd);
 }

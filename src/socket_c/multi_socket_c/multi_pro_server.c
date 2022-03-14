@@ -9,7 +9,9 @@
 
 int main(){
     int listenfd, connfd;
-    char buff[1024];
+    char buff[60];
+    // pid
+    pid_t pid;
     // 创建套接字，获取 listenfd
     listenfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     // 
@@ -29,16 +31,11 @@ int main(){
     int backlog = 10;
     // 监听 listenfd, 将获取的 SYN 的连接放入 SYN_RCVD 队列中
     listen(listenfd, backlog);
-    // char buf[1024];
      // 客户端地址
-    // int client_num = 0;
     struct sockaddr_in cli_addr;
     socklen_t addrlen = sizeof(cli_addr);
-
-    // pid
-    pid_t pid;
-    for(int c = 1; c <= 3; c++){
-        // errno = 0;
+    for(;;){
+         errno = 0;
         // 从 established 队列中获取连接，
         // 如果队列为空，则阻塞此处
         int connfd = accept(listenfd,(struct sockaddr*)&cli_addr, &addrlen);
@@ -49,7 +46,6 @@ int main(){
            // 建立连接成功
             printf("[Server] connection from %s port: %d\n", inet_ntop(AF_INET, &cli_addr.sin_addr,
             buff, sizeof(buff)),ntohs(cli_addr.sin_port));
-
             char str[] = "hello world!\n";
            // 向客户端发送数据
             write(connfd,str, sizeof(str));
