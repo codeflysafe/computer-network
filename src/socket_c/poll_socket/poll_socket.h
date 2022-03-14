@@ -20,5 +20,6 @@
 #define MAXLINE 1024
 #define SERV_PORT 6666
 #define BACK_LOG 100
+#define OPEN_MAX 1024
 
 #endif // POLL_SOCKET

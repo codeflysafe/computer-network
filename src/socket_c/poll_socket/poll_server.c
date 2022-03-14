@@ -33,14 +33,13 @@ int main(){
     listen(listenfd,BACK_LOG);   
     maxfd1 = listenfd;
     // 默认将 client[0] 作为 服务器 listenfd
-    clilen[0].fd = listenfd;
+    client[0].fd = listenfd;
     for(i = 1; i < OPEN_MAX; i++){
         client[i].fd = -1;
     }
-
     for(;;){
         // 
-        nready = poll(pollfd, maxi + 1, -1);
+        nready = poll(client, maxi + 1, -1);
         // 新来一个连接
         if((client[0].revents & POLLRDNORM)){
             clilen = sizeof(cliaddr);
