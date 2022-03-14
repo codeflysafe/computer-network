@@ -1,1 +1,0 @@
-/Library/Developer/CommandLineTools/usr/bin/cc -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX11.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/computer_network.dir/src/socket_c/single_socket_c/server.c.o CMakeFiles/computer_network.dir/src/socket_c/single_socket_c/client.c.o -o computer_network 
