@@ -21,4 +21,6 @@
 // backlog = SYN_RCVD 队列长度 + ESTABLISHED 队列长度
 #define BACK_LOG 12
 
+void init_serv_addr(struct sockaddr_in *serv_addr);
+
 #endif //COMPUTER_NETWORK_SINGLE_SOCKET_H

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ## 编译
-gcc -o client client.c -i single_client.h
-gcc -o server server.c -i single_client.h
+gcc -o client single_socket.c client.c -I single_socket.h
+gcc -o server single_socket.c server.c -I single_socket.h
 
 ## 启动服务器
 ./server &
