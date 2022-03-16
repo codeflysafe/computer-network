@@ -40,7 +40,7 @@ int main(){
     // 设置监听描述符
     FD_ZERO(&allset);
     FD_SET(listenfd, &allset);
-    char *msg = "hello world!\n";
+    char msg[] = "hello world!\n";
     for(;;){
         rset = allset;
         // 监听可读 描述符
@@ -51,7 +51,7 @@ int main(){
             printf("[Server] connection from %s port: %d\n", inet_ntop(AF_INET, &cli_addr.sin_addr,
                                                                        buff, sizeof(buff)),ntohs(cli_addr.sin_port));
             // 传给客户端
-            write(coonfd, msg, 100);
+            write(coonfd, msg, sizeof(msg));
             // 存入到 client 中
             for(i = 0; i < FD_SETSIZE; i++){
                 // 存储

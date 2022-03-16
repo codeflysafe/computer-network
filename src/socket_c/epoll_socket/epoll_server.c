@@ -39,7 +39,7 @@ int main(){
 
     epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
 
-    char *msg = "Hello World!";
+    char msg[] = "Hello world!\n";
     for(;;){
         nready = epoll_wait(epfd, events, max_epoll_size, -1);
         for(int i = 0; i < nready; i++){
@@ -50,7 +50,7 @@ int main(){
                     printf("[Server] connection from %s port: %d\n", inet_ntop(AF_INET, &cli_addr.sin_addr,
                                                                                buf, sizeof(buf)),ntohs(cli_addr.sin_port));
                     // 连接建立完成，发送消息给客户端
-                    write(connfd, msg, 1000);
+                    write(connfd, msg, sizeof(msg));
                     // 向 epoll 注册新的监听事件
                     struct epoll_event conn_ev;
                     conn_ev.data.fd = connfd;

@@ -37,7 +37,7 @@ int main(){
     for(i = 1; i < OPEN_MAX; i++){
         client[i].fd = -1;
     }
-    char *msg = "Hello world!\n";
+    char msg[] = "Hello world!\n";
     for(;;){
         // 
         nready = poll(client, OPEN_MAX, -1);
@@ -50,7 +50,7 @@ int main(){
             }
             printf("[Server] connection from %s port: %d\n", inet_ntop(AF_INET, &cli_addr.sin_addr,
                                                                        buff, sizeof(buff)),ntohs(cli_addr.sin_port));
-            write(coonfd, msg, 1000);
+            write(coonfd, msg, sizeof(msg));
             for(i = 1; i < OPEN_MAX; i++){
                 // 存储
                 if(client[i].fd < 0){
