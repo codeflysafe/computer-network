@@ -1,6 +1,7 @@
 //
-// Created by sjhuang on 2022/3/15.
+// Created by sjhuang on 2022/3/16.
 //
+
 
 #include <unistd.h>
 #include <stdio.h>
@@ -10,7 +11,6 @@
 int main(void)
 {
     int errno;
-    char buf[60];
     int epfd,nfds;
     //ev用于注册事件，数组用于返回要处理的事件
     struct epoll_event ev,events[5];
@@ -28,7 +28,6 @@ int main(void)
         for(int i = 0; i< nfds;i++)
         {
             if(events[i].data.fd == STDIN_FILENO)
-                read(STDIN_FILENO, buf, sizeof (buf));
                 printf("Hello world!\n");
         }
     }
