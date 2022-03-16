@@ -1,9 +1,3 @@
-/*
- * @Author: sjhuang
- * @Date: 2022-03-06 13:35:13
- * @LastEditTime: 2022-03-06 14:00:26
- * @FilePath: /computer_network/src/socket_c/epoll_socket/epoll_socket.h
- */
 #if !defined(EPOLL_SOCKET)
 #define EPOLL_SOCKET
 #include <stdio.h>
@@ -18,7 +12,8 @@
 
 #define SERVER_PORT 8888
 #define SERVER_IP "127.0.0.01"
-#define BUF_SIZE 64
+#define BUF_SIZE 1024
+#define BACK_LOG 100
 
 
 #endif // EPOLL_SOCKET
