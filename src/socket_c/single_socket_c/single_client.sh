@@ -11,7 +11,9 @@ echo "编译完毕"
 # 启动客户端
 ./client &
 
+
 #休眠一分钟
+sleep 2m
 pid=$(ps -ef | grep ./server | grep -v grep | awk '{print $2}')
 echo "server pid is ${pid}"
 # 杀掉服务端
