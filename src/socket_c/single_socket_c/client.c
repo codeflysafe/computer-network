@@ -12,6 +12,14 @@ int main(){
     // 创建套接字
     int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     struct sockaddr_in serv_addr;
+    // 指定端口号，
+    // struct sockaddr_in cli_addr;
+    // 初始化 cli_addr
+//    memset(&cli_addr, 0, sizeof(serv_addr));
+//    // 指定端口
+//    cli_addr.sin_port = htons(6666);
+//    bind(fd, (struct sockaddr *)(&cli_addr), sizeof(cli_addr));
+
     // 初始化 server_addr
     memset(&serv_addr, 0, sizeof(serv_addr));
     init_serv_addr(&serv_addr);

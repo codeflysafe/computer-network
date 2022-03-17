@@ -1,7 +1,3 @@
-//
-// Created by sjhuang on 2022/3/14.
-//
-
 #ifndef COMPUTER_NETWORK_SINGLE_SOCKET_H
 #define COMPUTER_NETWORK_SINGLE_SOCKET_H
 
@@ -13,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+
 // 默认的服务器端口号
 #define SERVER_PORT 1234
 // 默认的服务器 ip 地址

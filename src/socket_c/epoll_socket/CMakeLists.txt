@@ -4,4 +4,4 @@ project(EPOLL_SOCKET)
 
 include(epoll_socket.h)
 
-add_executable(EPOLL_SOCKET epoll_server.c)
+add_executable(EPOLL_SOCKET epoll_client.c)
