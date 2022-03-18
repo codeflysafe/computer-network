@@ -29,7 +29,7 @@ int main(int argc, char **argv){
     struct sockaddr_in cli_addr;
     socklen_t addrlen = sizeof(cli_addr);
     for(; ;){
-        errno = 0;
+
         // 从 established 队列中获取连接，
         // 如果队列为空，则阻塞此处
         connfd = accept(listenfd,(struct sockaddr*)&cli_addr, &addrlen);
@@ -44,11 +44,16 @@ int main(int argc, char **argv){
         if(errno != 0){
            printf("[Server]  connect error: %d\n", errno);
         }
+        errno = 0;
         n = read(connfd, buff, sizeof(buff));
-        printf("[Server]  close connection: %d\n", connfd);
+        // 如果接收到了 fin
+        char msg[60];
+        sprintf(msg,"[Server] %d 半关闭也可以接收数据 \n", connfd);
+        printf("[Server] send %s\n",msg);
+        write(connfd, msg,sizeof(msg));
         // 关闭连接;
         close(connfd);
-
+        printf("[Server]  connect close: %d\n", connfd);
     }
     close(listenfd);
     printf("[Server]  connect close: %d\n", getpid());

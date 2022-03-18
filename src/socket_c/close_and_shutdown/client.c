@@ -7,8 +7,8 @@
 #include "single_socket.h"
 
 int main(){
-    errno = 0;
-    char buf[60];
+
+    char buf[100];
     // 创建套接字
     int fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     struct sockaddr_in serv_addr;
@@ -36,7 +36,10 @@ int main(){
     if(n > 0) printf("[client] %d, Message received from server: %s\n",pid, buf);
     // 关闭套接字
     // 发送 fin 给 socket
-    shutdown(fd, SHUT_RD);
+    shutdown(fd, SHUT_WR);
+    errno = 0;
+    n = read(fd, buf, sizeof(buf));
+    if(n > 0) printf("[client] %d, %d, %d Message received from server: %s after shutdown\n",pid,errno,n, buf);
     printf("[client] client close: %d\n", getpid());
     return 0;
 }

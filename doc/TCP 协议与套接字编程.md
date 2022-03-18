@@ -1,10 +1,9 @@
-# TCP 协议与套接字编程
+# TCP 协议与套接字编程: socket 详解
 
 Created: March 5, 2022 3:09 PM
 Tags: socket, tcp, 网络编程
 
-> 代码在 [[github]](https://github.com/codeflysafe/computer-network/tree/main/src/socket_c/single_socket_c)
->
+[code](https://github.com/codeflysafe/computer-network/tree/main/src/socket_c)
 
 ## `TCP` 协议
 
@@ -91,6 +90,22 @@ tcp 流程图
 
 结合着`TCP`的三次握手、数据传输以及四次挥手来学习
 
+> `sudo tcpdump -i lo0 port 1234`
+>
+
+```cpp
+13:07:27.918176 IP localhost.53103 > localhost.search-agent: Flags [S], seq 1452795004, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 3869849049 ecr 0,sackOK,eol], length 0
+13:07:27.918235 IP localhost.search-agent > localhost.53103: Flags [S.], seq 1145433398, ack 1452795005, win 65535, options [mss 16344,nop,wscale 6,nop,nop,TS val 3557382200 ecr 3869849049,sackOK,eol], length 0
+13:07:27.918243 IP localhost.53103 > localhost.search-agent: Flags [.], ack 1, win 6379, options [nop,nop,TS val 3869849049 ecr 3557382200], length 0
+13:07:27.918252 IP localhost.search-agent > localhost.53103: Flags [.], ack 1, win 6379, options [nop,nop,TS val 3557382200 ecr 3869849049], length 0
+13:07:27.918337 IP localhost.search-agent > localhost.53103: Flags [P.], seq 1:15, ack 1, win 6379, options [nop,nop,TS val 3557382200 ecr 3869849049], length 14
+13:07:27.918350 IP localhost.53103 > localhost.search-agent: Flags [.], ack 15, win 6379, options [nop,nop,TS val 3869849049 ecr 3557382200], length 0
+13:07:27.918372 IP localhost.search-agent > localhost.53103: Flags [F.], seq 15, ack 1, win 6379, options [nop,nop,TS val 3557382200 ecr 3869849049], length 0
+13:07:27.918389 IP localhost.53103 > localhost.search-agent: Flags [.], ack 16, win 6379, options [nop,nop,TS val 3869849049 ecr 3557382200], length 0
+13:07:27.918407 IP localhost.53103 > localhost.search-agent: Flags [F.], seq 1, ack 16, win 6379, options [nop,nop,TS val 3869849049 ecr 3557382200], length 0
+13:07:27.918423 IP localhost.search-agent > localhost.53103: Flags [.], ack 2, win 6379, options [nop,nop,TS val 3557382200 ecr 3869849049], length 0
+```
+
 ### `socket` 函数
 
 为了执行网络i/o, 一个进程首先做的是调用 `socket` 函数，指定通行协议类型。
@@ -115,9 +130,7 @@ tcp 三次握手与tcp套接字函数的关系
 
 主要涉及函数为 `connect`、`bind`、`listen`、`accept`
 
-![tcpdump 的结果](TCP%20%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97%2087d22/Untitled%204.png)
-
-tcpdump 的结果
+![Untitled](TCP%20%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97%2087d22/Untitled%204.png)
 
 ### `connect` **函数**
 
@@ -235,8 +248,104 @@ int accept(int sock_fd, struct sockaddr * __restrict, socklen_t * __restrict)
 
 此时，若就绪队列（完成连接队列）为空，则会阻塞直到其存在完成连接。
 
-### TCP 数据传输
+### `TCP` 数据传输
 
-### TCP 断开连接（四次挥手）
+`read`系统函数从打开的设备或文件中读取数据，即将数据从外设上经过内核缓冲区读到用户空间；`write`系统函数相反，向打开的设备或文件中写入数据，即将数据从用户空间（`I/O缓冲`）送到内核，然后刷到外设上。
 
-**###** `close`**函数**
+大多数文件系统的默认 `I/O` 操作都是缓存 `I/O`。在 `Linux` 的缓存 `I/O` 机制中，操作系统会将 `I/O` 的数据缓存在文件系统的页缓存（ `page cache` ）中，也就是说，数据会先被拷贝到操作系统内核的缓冲区中,然后才会从操作系统内核的缓冲区拷贝到应用程序的地址空间。
+
+### `read` 函数
+
+`read` 是从打开的文件中读取数据
+
+```cpp
+ssize_t	 read(int fd, void *buf, size_t nbytes);
+```
+
+| 参数 | desc |
+| --- | --- |
+| fd | 文件描述符 |
+| buf | 用户缓冲区 |
+| nbytes | 字节数 |
+
+### `write` 函数
+
+```cpp
+ssize_t	 write(int __fd, const void * __buf, size_t __nbyte)
+```
+
+向打开的`fd`写入数据
+
+### `TCP` 断开连接（四次挥手）
+
+![Untitled](TCP%20%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97%2087d22/Untitled%206.png)
+
+![Untitled](TCP%20%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97%2087d22/Untitled%207.png)
+
+### `close` 函数
+
+`close` 函数用来关闭套接字，终止`tcp`连接. 它存在一个引用计数，当数量变为1之后，在此关闭才会发送 `FIN`, 触发四次挥手。
+
+如果某个进程首先调用`close`函数，称之为**主动关闭**，主动关闭存在一个 `TIME_WAIT`阶段，它最长可达`2MSL`（2*60）。另外一个进程（接收这个`FIN`）称之为被动关闭，存在一个`CLOSE_WAIT` 阶段。被动关闭后接收到一个`EOF`（文件结束符）代表接收端收到应用进程在相应连接上再无额外数据可以接收。
+
+`**TIME_WAIT` 状态**
+
+主动关闭的一端才会存在 `TIME_WAIT` 阶段，并不局限于客户端，服务端也可能存在。
+
+它的主要作用有两种：
+
+1. 可靠的实现全双工连接的终止
+2. 允许老的重复的分节在网络中消失
+
+![Untitled](TCP%20%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97%2087d22/Untitled%208.png)
+
+假设第`4`个报文段丢失，`server`会超时重传 第`3`条报文。
+
+![Untitled](TCP%20%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97%2087d22/Untitled%209.png)
+
+如果没有`TIME_WAIT`阶段，有可能会存在一条新的连接（端口和ip对都相同），此时它可能会被误以为是同一条连接。**为了防止这种情况的发生`TCP`连接必须让`TIME_WAIT`状态持续`2MSL`，在此期间将不能基于这个端口建立新的化身**
+
+**close 函数一定会触发四次挥手吗？**
+
+`close` 关闭 `socket_fd`后并不一定触发`TCP`四次挥手，它只是将它的应用计数值减`1`，直到减到`0`是，才会触发四次挥手。
+
+这个特性主要配合并发服务器使用。详见 →
+
+[computer-network/src/socket_c/multi_socket_c at main · codeflysafe/computer-network](https://github.com/codeflysafe/computer-network/tree/main/src/socket_c/multi_socket_c)
+
+### `shutdown` 函数
+
+半关闭，更加优雅的控制. `close` 函数是终止两个方向，而`shutdown` 是终止单个方向，如`SHUT_WR`， 则代表停止向另一端发送报文段，但是可以接收
+
+```cpp
+int shutdown(int fd, int mod);
+```
+
+[computer-network/src/socket_c/close_and_shutdown at main · codeflysafe/computer-network](https://github.com/codeflysafe/computer-network/tree/main/src/socket_c/close_and_shutdown)
+
+| operator | send FIN |
+| --- | --- |
+| close(connfd); |  |
+| shutdown(connfd, SHUT_WR); |  |
+| shutdown(connfd, SHUT_RD); |  |
+| shutdown(connfd, SHUT_RDWR); |  |
+|  |  |
+
+![Untitled](TCP%20%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97%2087d22/Untitled%2010.png)
+
+![Untitled](TCP%20%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%A5%97%E6%8E%A5%E5%AD%97%2087d22/Untitled%2011.png)
+
+```cpp
+编译完毕
+[client] 48724 connect successfully !
+[Server] connection from 127.0.0.1 port: 61259
+[client] 48724, Message received from server: hello world!
+
+[Server] send [Server] 4 半关闭也可以接收数据 
+
+[client] 48724, 0, 60 Message received from server: [Server] 4 半关闭也可以接收数据 
+ after shutdown
+[client] client close: 48724
+[Server]  connect close: 4
+server pid is 48723
+```
