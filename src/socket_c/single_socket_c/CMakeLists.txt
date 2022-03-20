@@ -4,4 +4,4 @@ project(SINGLE_SOCKET_C)
 
 #include(single_socket.h)
 
-add_executable(SINGLE_SOCKET_C single_socket.c client.c)
+add_executable(SINGLE_SOCKET_C single_socket.c server.c)

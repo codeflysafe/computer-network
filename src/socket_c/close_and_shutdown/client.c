@@ -38,6 +38,7 @@ int main(){
     // 发送 fin 给 socket
     shutdown(fd, SHUT_WR);
     errno = 0;
+//    send();
     n = read(fd, buf, sizeof(buf));
     if(n > 0) printf("[client] %d, %d, %d Message received from server: %s after shutdown\n",pid,errno,n, buf);
     printf("[client] client close: %d\n", getpid());
