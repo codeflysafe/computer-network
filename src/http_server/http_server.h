@@ -21,4 +21,25 @@
 #define BACK_LOG 100
 #define MAX_EPOLL_SIZE 1024
 
+// 服务器启动标志
+static int running = 1;
+// 启动一个服务器
+int start_server(u_short *);
+// 关闭 server
+void close_server();
+// 处理一个 tcp 请求
+void handle_accpet(int, int);
+// 读取一行数据，使用 xxx 结尾
+void get_line(int, char *, int);
+// 处理 request 请求
+void handle_read(int, int);
+// 404 not found 回复
+void not_found(int);
+// 错误的请求
+void bad_request(int);
+// 返回回复
+void serve_file(int, const char*);
+// 错误返回
+void err_die(const char *);
+
 #endif //EPOLL_MODE_HTTP_SERVER_H
