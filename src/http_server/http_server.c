@@ -22,7 +22,7 @@ void get_line(int connfd, char *buf, int size){
     // read line
     while((i < size - 1) && (c != '\n')){
         // read char
-        n = read(connfd, &c, 1);
+        n = recv(connfd, &c, 1, 0);
         if(n > 0){
             if(c == '\r'){
 
@@ -33,23 +33,7 @@ void get_line(int connfd, char *buf, int size){
     }
 }
 
-void bad_request(int client)
-{
-    // char buf[1024];
-
-    /*回应客户端错误的 HTTP 请求 */
-    // char msg[] =  "HTTP/1.0 400 BAD REQUEST\r\n";
-    // send(client, msg, strlen(msg), 0);
-    // char type[] = "Content-type: text/html\r\n";
-    // send(client, type, strlen(type), 0);
-    // send(client, buf, sizeof(buf), 0);
-    // sprintf(buf, "<P>Your browser sent a bad request, ");
-    // send(client, buf, sizeof(buf), 0);
-    // sprintf(buf, "such as a POST without a Content-Length.\r\n");
-    // send(client, buf, sizeof(buf), 0);
-}
-
-void header(int client, int status, const char *desc, const char *type, long len){
+void send_response_header(int client, int status, const char *desc, const char *type, long len){
     char buf[512] = {0};
     sprintf(buf,"HTTP/1.1 %d %s\r\n",status,desc);
     send(client, buf, strlen(buf), 0);
@@ -60,13 +44,28 @@ void header(int client, int status, const char *desc, const char *type, long len
     send(client, "\r\n", 2, 0);
 }
 
+void bad_request(int client)
+{
+
+    send_response_header(client, 400, "BAD REQUEST", "text/html", 30);
+    /*回应客户端错误的 HTTP 请求 */
+    char content[] = "<p>This is an simple response </p>";
+    send(client, content, strlen(content), 0);
+   
+}
+
 void send_msg(int client){
 
     /*回应客户端的 HTTP 请求 */
     // response header
-    header(client,200, "OK", "text/html", 30);
+    send_response_header(client,200, "OK", "text/html", 30);
     char content[] = "<p>This is an simple response </p>";
     send(client, content, strlen(content), 0);
+}
+
+void send_file(int client,  const char* file_name){
+
+
 }
 
 // 处理连接操作

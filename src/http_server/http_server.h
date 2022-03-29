@@ -34,6 +34,8 @@ void close_server();
 void handle_accpet(int, int);
 // 读取一行数据，使用 xxx 结尾
 void get_line(int, char *, int);
+// send resonse header
+void send_response_header(int, int, const char *, const char *, long);
 // 处理 request 请求
 void handle_read(int, int);
 // 404 not found 回复
@@ -41,7 +43,7 @@ void not_found(int);
 // 错误的请求
 void bad_request(int);
 // 返回回复
-void serve_file(int, const char*);
+void send_file(int, const char*);
 // close connect
 void disconnect(int, int);
 // 错误返回
