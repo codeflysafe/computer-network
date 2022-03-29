@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/media/sjihuang/文件盘/projects/computer-network/build",
+  "command": "/bin/x86_64-linux-gnu-gcc-9   -g   -o CMakeFiles/SINGLE_SOCKET_C.dir/single_socket.c.o   -c /media/sjihuang/文件盘/projects/computer-network/src/socket_c/single_socket_c/single_socket.c",
+  "file": "/media/sjihuang/文件盘/projects/computer-network/src/socket_c/single_socket_c/single_socket.c"
+},
+{
+  "directory": "/media/sjihuang/文件盘/projects/computer-network/build",
+  "command": "/bin/x86_64-linux-gnu-gcc-9   -g   -o CMakeFiles/SINGLE_SOCKET_C.dir/server.c.o   -c /media/sjihuang/文件盘/projects/computer-network/src/socket_c/single_socket_c/server.c",
+  "file": "/media/sjihuang/文件盘/projects/computer-network/src/socket_c/single_socket_c/server.c"
+}
+]

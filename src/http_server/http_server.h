@@ -15,6 +15,7 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+
 #define SERVER_PORT 8888
 #define SERVER_IP "127.0.0.1"
 #define BUF_SIZE 1024*1024
@@ -23,8 +24,10 @@
 
 // 服务器启动标志
 static int running = 1;
-// 启动一个服务器
-int start_server(u_short *);
+// socket/bind/socket
+int server_socket(u_short *);
+// start server
+void start_server(int);
 // 关闭 server
 void close_server();
 // 处理一个 tcp 请求
@@ -39,6 +42,8 @@ void not_found(int);
 void bad_request(int);
 // 返回回复
 void serve_file(int, const char*);
+// close connect
+void disconnect(int, int);
 // 错误返回
 void err_die(const char *);
 

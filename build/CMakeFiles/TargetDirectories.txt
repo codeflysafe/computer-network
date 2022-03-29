@@ -1,0 +1,3 @@
+/media/sjihuang/文件盘/projects/computer-network/build/CMakeFiles/rebuild_cache.dir
+/media/sjihuang/文件盘/projects/computer-network/build/CMakeFiles/edit_cache.dir
+/media/sjihuang/文件盘/projects/computer-network/build/CMakeFiles/SINGLE_SOCKET_C.dir

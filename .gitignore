@@ -3,3 +3,4 @@
 *cmake-build*
 */*/*/cmake-build*
 */*/cmake-build*
+*/*/build

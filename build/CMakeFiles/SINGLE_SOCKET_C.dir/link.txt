@@ -1,0 +1,1 @@
+/bin/x86_64-linux-gnu-gcc-9 -g  -rdynamic CMakeFiles/SINGLE_SOCKET_C.dir/single_socket.c.o CMakeFiles/SINGLE_SOCKET_C.dir/server.c.o  -o SINGLE_SOCKET_C 

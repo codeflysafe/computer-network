@@ -4,6 +4,71 @@
 
 #include "http_server.h"
 
+
+// 
+void disconnect(int connfd, int epfd){
+    int ret = epoll_ctl(epfd, EPOLL_CTL_DEL, connfd, NULL);
+    if(ret == -1){
+        err_die("disconnect error");
+    }
+    // close connected
+    close(connfd);
+}
+
+void get_line(int connfd, char *buf, int size){
+    int i = 0;
+    char c = '\0';
+    int n = 0;
+    // read line
+    while((i < size - 1) && (c != '\n')){
+        // read char
+        n = read(connfd, &c, 1);
+        if(n > 0){
+            if(c == '\r'){
+
+            }else{
+                c = '\n';
+            }
+        }
+    }
+}
+
+void bad_request(int client)
+{
+    // char buf[1024];
+
+    /*回应客户端错误的 HTTP 请求 */
+    // char msg[] =  "HTTP/1.0 400 BAD REQUEST\r\n";
+    // send(client, msg, strlen(msg), 0);
+    // char type[] = "Content-type: text/html\r\n";
+    // send(client, type, strlen(type), 0);
+    // send(client, buf, sizeof(buf), 0);
+    // sprintf(buf, "<P>Your browser sent a bad request, ");
+    // send(client, buf, sizeof(buf), 0);
+    // sprintf(buf, "such as a POST without a Content-Length.\r\n");
+    // send(client, buf, sizeof(buf), 0);
+}
+
+void header(int client, int status, const char *desc, const char *type, long len){
+    char buf[512] = {0};
+    sprintf(buf,"HTTP/1.1 %d %s\r\n",status,desc);
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf,"Content-type: %s\r\n",type);
+    send(client, buf, strlen(buf), 0);
+    sprintf(buf,"Content-Length: %ld\r\n",len);
+    send(client, buf, strlen(buf), 0);
+    send(client, "\r\n", 2, 0);
+}
+
+void send_msg(int client){
+
+    /*回应客户端的 HTTP 请求 */
+    // response header
+    header(client,200, "OK", "text/html", 30);
+    char content[] = "<p>This is an simple response </p>";
+    send(client, content, strlen(content), 0);
+}
+
 // 处理连接操作
 void handle_accpet(int sockfd, int epfd){
     struct sockaddr_in cli_addr;
@@ -11,18 +76,17 @@ void handle_accpet(int sockfd, int epfd){
     errno = 0;
     char buf[1024] = {0};
     // 获取连接
-    int coonfd = accept(sockfd,(struct sockaddr *)cli_addr, cl_len);
+    int coonfd = accept(sockfd,(struct sockaddr *)&cli_addr, &cli_len);
     if(coonfd <= 0){
-        printf("Server socket accept error: %d\n",errno);
-        exit(1);
+        err_die("Server socket accept error");
     }else{
-        printf("[Server] establish from %s port: %d\n", inet_ntop(AF_INET, &cli_addr->sin_addr,
-                                                                   buf, sizeof(buf)),ntohs(cli_addr->sin_port));
+        printf("[Server] establish from %s port: %d\n", inet_ntop(AF_INET, &cli_addr.sin_addr,
+                                                                   buf, sizeof(buf)),ntohs(cli_addr.sin_port));
     }
     // 监听可读请求
     struct epoll_event ev;
     ev.data.fd = coonfd;
-    ev.events = EPOLLIN | ;
+    ev.events = EPOLLIN ;
     // 注册监听事件
     epoll_ctl(epfd, EPOLL_CTL_ADD, coonfd, &ev);
 }
@@ -33,30 +97,29 @@ void handle_read(int coonfd, int epfd){
     char buf[BUF_SIZE] = {0};
     // 如果可读，就将缓冲区读完
     n = read(coonfd, buf, sizeof(buf));
-    // 获取读取的数据
-    if(n > 0){
-        printf("Sever get msg from client: %s\n", buf);
-    }else{
-        printf("Server read msg error %d \n", errno);
-        exit(1);
+    if(n <= 0){
+        err_die("Server read msg error");
     }
 
+    // 获取读取的数据
+    printf("Sever get msg from client: %s\n", buf);
+    // parser http request
 
+    // bad_request(coonfd);
     // 处理读取的数据
     // todo 处理读取的数据
-    const char msg[] = "HTTP/1.1 200 OK \r\n \r\n Hello world!";
-    // 回复客户端数据
-    write(coonfd, msg, sizeof (msg));
-    // todo 回复客户端
+    send_msg(coonfd);
+    disconnect(coonfd,epfd);
+    // todo 回复客户端 
     // 去除监听的事件
-    struct epoll_event ev;
-    ev.data.fd = coonfd;
-    ev.events = EPOLLIN;
-    // 删除监听事件
-    epoll_ctl(epfd, EPOLL_CTL_DEL, coonfd, &ev);
+    // struct epoll_event ev;
+    // ev.data.fd = coonfd;
+    // ev.events = EPOLLIN;
+    // // 删除监听事件
+    // epoll_ctl(epfd, EPOLL_CTL_DEL, coonfd, &ev);
 
     // 关闭 连接
-    close(coonfd);
+    // shutdown(coonfd, SHUT_WR);
 }
 
 void err_die(const char *err_info){
@@ -64,7 +127,7 @@ void err_die(const char *err_info){
     exit(1);
 }
 
-int start_server(u_short *port){
+int server_socket(u_short *port){
     // socket fd connect fd epoll fd
     int sockfd, epfd;
     errno = 0;
@@ -80,69 +143,38 @@ int start_server(u_short *port){
     // 创建连接套接字
     sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(sockfd <= 0){
-        printf("Server socket create error: %d\n",errno);
-        exit(1);
+        err_die("Server socket create error");
     }else printf("Server socket create success: %d\n",sockfd);
     // 监听
     n = bind(sockfd, (struct sockaddr *)&ser_addr, sizeof(ser_addr));
     if(n == -1){
-        printf("Server socket bind error: %d\n", errno);
-        exit(1);
+        err_die("Server socket bind error");
     }
     // 被动打开
     listen(sockfd, BACK_LOG);
     printf("Server socket bind port:%s: %d\n",SERVER_IP, SERVER_PORT);
+    socklen_t add_len = sizeof(ser_addr);
     // 未设定 监听的 port
     if(*port == 0){
-        if(getsockname(sockfd, (struct sockaddr *)&ser_addr, &sizeof(ser_addr)) == -1){
-            err_die("get server port");
+        if(getsockname(sockfd, (struct sockaddr *)&ser_addr, &add_len) == -1){
+            err_die("get server port error");
         }
         *port = ntohs(ser_addr.sin_port);
     }
-
+    return sockfd;
 }
 
-// 一种 http 请求服务器. 采用`epoll i/o`复用机制
-int main(){
-    // socket fd connect fd epoll fd
-    int sockfd, epfd;
-    errno = 0;
+void start_server(int sockfd){
     int n, nready;
-    // 地址协议
-    struct sockaddr_in ser_addr;
-    // 初始化 服务器端 地址
-    memset(&ser_addr, 0, sizeof(ser_addr));
-    ser_addr.sin_port = ntohs(SERVER_PORT);
-    ser_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
-    ser_addr.sin_family = AF_INET;
-
-    // 创建连接套接字
-    sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(sockfd <= 0){
-        printf("Server socket create error: %d\n",errno);
-        exit(1);
-    }
-    printf("Server socket create success: %d\n",sockfd);
-    // 监听
-    n = bind(sockfd, (struct sockaddr *)&ser_addr, sizeof(ser_addr));
-    if(n == -1){
-        printf("Server socket bind error: %d\n", errno);
-        exit(1);
-    }
-    // 被动打开
-    listen(sockfd, BACK_LOG);
-    printf("Server socket bind port:%s: %d\n",SERVER_IP, SERVER_PORT);
-
     // 监听 sock fd 套接字
     struct  epoll_event ev, events[MAX_EPOLL_SIZE];
     ev.data.fd = sockfd;
     ev.events = EPOLLIN;
 
     // 创建 epoll fd
-    epfd = epoll_create(MAX_EPOLL_SIZE);
+    int epfd = epoll_create(MAX_EPOLL_SIZE);
     // 监听事件 sock fd 的可读事件
     epoll_ctl(epfd,EPOLL_CTL_ADD, sockfd,&ev);
-
     for(;;){
         printf("Server 正在监听链接\n");
         // 阻塞获取事件
@@ -158,5 +190,13 @@ int main(){
         }
     }
 
+}
+
+// 一种 http 请求服务器. 采用`epoll i/o`复用机制
+int main(){
+    u_short port = SERVER_PORT;
+    // 地址协议
+    int sockfd = server_socket(&port);
+    start_server(sockfd);
     return 0;
 }
