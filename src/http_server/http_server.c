@@ -15,22 +15,30 @@ void disconnect(int connfd, int epfd){
     close(connfd);
 }
 
-void get_line(int connfd, char *buf, int size){
+void get_line(int client, char *buf, int size){
     int i = 0;
     char c = '\0';
     int n = 0;
     // read line
     while((i < size - 1) && (c != '\n')){
         // read char
-        n = recv(connfd, &c, 1, 0);
+        n = recv(client, &c, 1, 0);
         if(n > 0){
             if(c == '\r'){
-
+                n = recv(client, &c, 1, MSG_PEEK);
+                // '\r\n' 
+                if(c == '\n'){
+                    // 
+                    recv(client, &c, 1, 0);
+                }
             }else{
+                buf[i] = c;
                 c = '\n';
             }
         }
+        i++;
     }
+    buf[i] = '\0';
 }
 
 void send_response_header(int client, int status, const char *desc, const char *type, long len){
@@ -64,8 +72,7 @@ void send_msg(int client){
 }
 
 void send_file(int client,  const char* file_name){
-
-
+    
 }
 
 // 处理连接操作

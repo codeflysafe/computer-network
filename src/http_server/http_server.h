@@ -22,6 +22,10 @@
 #define BACK_LOG 100
 #define MAX_EPOLL_SIZE 1024
 
+#define SUCCESS 200
+#define NOT_FOUND 404
+#define BAD_GATWAY 500 
+
 // 服务器启动标志
 static int running = 1;
 // socket/bind/socket

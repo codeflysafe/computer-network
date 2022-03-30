@@ -4,6 +4,6 @@
 gcc -o server http_server.c
 
 # 启动服务端
-./server &
+./server 
 echo "server start!"
 
